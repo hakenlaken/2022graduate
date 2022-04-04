@@ -152,6 +152,8 @@ public:
         , tx_of_packets_(0)
         , pkt_in_of_packets_(0)
         , pkt_out_of_packets_(0)
+        , flow_mod_packets_(0)
+        , flow_removed_packets_(0)
     { }
 
     uint64_t dpid() const override
@@ -201,6 +203,8 @@ public:
         tx_of_packets_ = 0;
         pkt_in_of_packets_ = 0;
         pkt_out_of_packets_ = 0;
+        flow_mod_packets_ = 0;
+        flow_removed_packets_ = 0;
     }
 
     std::chrono::system_clock::time_point get_start_time() const override
@@ -226,6 +230,16 @@ public:
     uint64_t get_pkt_out_packets() const override
     {
         return pkt_out_of_packets_;
+    }
+
+    uint64_t get_flow_mod_packets() const override
+    {
+        return flow_mod_packets_;
+    }
+
+    uint64_t get_flow_removed_packets() const override
+    {
+        return flow_removed_packets_;
     }
 
     void packet_in_counter() override
@@ -260,6 +274,12 @@ public:
             pkt_out_of_packets_++;
             //conn->packet_out_counter();
         }
+        if (msg.type() == of13::OFPT_FLOW_MOD) {
+            flow_mod_packets_++;
+        }
+        if (msg.type() == of13::OFPT_FLOW_REMOVED) {
+            flow_removed_packets_++;
+        }
 
         //std::thread([this,len = msg.length(), buf = std::move(buf)] {
         //LOG(ERROR)<<"-|- OFServer send("<<msg.length()<<")";
@@ -291,6 +311,8 @@ public:
             rx_of_packets_ = 0;
             pkt_in_of_packets_ = 0;
             pkt_out_of_packets_ = 0;
+            flow_mod_packets_ = 0;
+            flow_removed_packets_ = 0;
         }
     }
 
@@ -313,6 +335,8 @@ private:
     uint64_t tx_of_packets_;
     uint64_t pkt_in_of_packets_;
     uint64_t pkt_out_of_packets_;
+    uint64_t flow_mod_packets_;
+    uint64_t flow_removed_packets_;
 
     BroadcastSignal< SendHookDispatch > send_hook_sig_;
     BroadcastSignal< ReceiveDispatch > receive_sig_;
@@ -468,6 +492,28 @@ uint64_t OFServer::get_pkt_out_openflow_packets() const
 
     for (const auto& conn : connections()) {
         ret += conn->get_pkt_out_packets();
+    }
+
+    return ret;
+}
+
+uint64_t OFServer::get_flow_mod_openflow_packets() const
+{
+    uint64_t ret = 0;
+
+    for (const auto& conn : connections()) {
+        ret += conn->get_flow_mod_packets();
+    }
+
+    return ret;
+}
+
+uint64_t OFServer::get_flow_removed_openflow_packets() const
+{
+    uint64_t ret = 0;
+
+    for (const auto& conn : connections()) {
+        ret += conn->get_flow_removed_packets();
     }
 
     return ret;

@@ -40,6 +40,8 @@ struct OFServerCollection : rest::resource
         uint64_t tx = app->get_tx_openflow_packets();
         uint64_t pkt_in = app->get_pkt_in_openflow_packets();
         uint64_t pkt_out = app->get_pkt_out_openflow_packets();
+        uint64_t flow_mod = app->get_flow_mod_openflow_packets();
+        uint64_t flow_removed = app->get_flow_removed_openflow_packets();
         uint64_t uptime = std::chrono::duration_cast<std::chrono::seconds>
                     (end - start).count();
         int conn_num = app->connections().size();
@@ -52,6 +54,8 @@ struct OFServerCollection : rest::resource
         root.put("ctrl_pkt_in_ofpackets", pkt_in);
         root.put("ctrl_pkt_out_ofpackets", pkt_out);
         root.put("ctrl_tx_ofpackets", tx);
+        root.put("ctrl_flow_mod_ofpackets", flow_mod);
+        root.put("ctrl_flow_removed_ofpackets", flow_removed);
 
         return root;
     }
