@@ -19,3 +19,4 @@ REST запрос для проверки, что все метрики счит
 ```
 watch -n 1 "curl -X GET http://127.0.0.1:8000/of-server/info/"
 ```
+<img width="1012" alt="from ubuntu" src="https://user-images.githubusercontent.com/70706464/161530073-7197ca55-b396-491c-a8aa-02768ea1a0c5.png">
