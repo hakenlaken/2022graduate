@@ -151,6 +151,7 @@ public:
         , rx_of_packets_(0)
         , tx_of_packets_(0)
         , pkt_in_of_packets_(0)
+        , pkt_out_of_packets_(0)
     { }
 
     uint64_t dpid() const override
@@ -199,6 +200,7 @@ public:
         rx_of_packets_ = 0;
         tx_of_packets_ = 0;
         pkt_in_of_packets_ = 0;
+        pkt_out_of_packets_ = 0;
     }
 
     std::chrono::system_clock::time_point get_start_time() const override
@@ -221,9 +223,19 @@ public:
         return pkt_in_of_packets_;
     }
 
+    uint64_t get_pkt_out_packets() const override
+    {
+        return pkt_out_of_packets_;
+    }
+
     void packet_in_counter() override
     {
         pkt_in_of_packets_++;
+    }
+
+    void packet_out_counter() override
+    {
+        pkt_out_of_packets_++;
     }
 
     uint8_t protocol_version() const override
@@ -243,6 +255,11 @@ public:
         auto deleter = &fluid_msg::OFMsg::free_buffer;
         std::unique_ptr<uint8_t[], decltype(deleter)> buf
             { msg.pack(), deleter };
+
+        if (msg.type() == of13::OFPT_PACKET_OUT) {
+            pkt_out_of_packets_++;
+            //conn->packet_out_counter();
+        }
 
         //std::thread([this,len = msg.length(), buf = std::move(buf)] {
         //LOG(ERROR)<<"-|- OFServer send("<<msg.length()<<")";
@@ -273,6 +290,7 @@ public:
             tx_of_packets_ = 0;
             rx_of_packets_ = 0;
             pkt_in_of_packets_ = 0;
+            pkt_out_of_packets_ = 0;
         }
     }
 
@@ -294,6 +312,7 @@ private:
     uint64_t rx_of_packets_;
     uint64_t tx_of_packets_;
     uint64_t pkt_in_of_packets_;
+    uint64_t pkt_out_of_packets_;
 
     BroadcastSignal< SendHookDispatch > send_hook_sig_;
     BroadcastSignal< ReceiveDispatch > receive_sig_;
@@ -443,6 +462,17 @@ uint64_t OFServer::get_pkt_in_openflow_packets() const
     return ret;
 }
 
+uint64_t OFServer::get_pkt_out_openflow_packets() const
+{
+    uint64_t ret = 0;
+
+    for (const auto& conn : connections()) {
+        ret += conn->get_pkt_out_packets();
+    }
+
+    return ret;
+}
+
 shared_future<OFConnectionImplPtr>
 OFServer::implementation::get_connection_future(uint64_t dpid)
 {
@@ -558,6 +588,12 @@ OFServer::implementation::message_callback(FluidConnection *fluid_conn,
         return;
     }
 
+    if (type == of13::OFPT_PACKET_OUT) {
+        if (auto conn = get_connection(fluid_conn)) {
+            conn->packet_out_counter();
+        }
+    }
+
     if (type == of13::OFPT_FEATURES_REPLY) {
         auto& fr = dynamic_cast<of13::FeaturesReply&>(msg);
         auto dpid = fr.datapath_id();
@@ -632,6 +668,10 @@ OFServer::implementation::message_callback(FluidConnection *fluid_conn,
         if (type == of13::OFPT_PACKET_IN) {
             conn->packet_in_counter();
         }
+        if (type == of13::OFPT_PACKET_OUT) {
+                    conn->packet_out_counter();
+        }
+
     }
 } ); }
 

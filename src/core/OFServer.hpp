@@ -47,6 +47,8 @@ public:
     uint64_t get_rx_openflow_packets() const;
     uint64_t get_tx_openflow_packets() const;
     uint64_t get_pkt_in_openflow_packets() const;
+    // add:
+    uint64_t get_pkt_out_openflow_packets() const;
 
 signals:
     void switchDiscovered(OFConnectionPtr conn);
