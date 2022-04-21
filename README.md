@@ -2,6 +2,11 @@
 
 CUSTOM RUNOS CONFIG BY hakenlaken 
 
+Добавлены следующие метрики:
+- pkt_out_of_packets_ (Тип OpenFlow msg – of13::OFPT_PACKET_OUT)
+- flow_mod_packets_ (Тип OpenFlow msg – of13::OFPT_FLOW_MOD)
+- flow_removed_packets_ (Тип OpenFlow msg – of13::OFPT_FLOW_REMOVED)
+
 запуск:
 ```
 nix-shell 
@@ -19,4 +24,5 @@ REST запрос для проверки, что все метрики счит
 ```
 watch -n 1 "curl -X GET http://127.0.0.1:8000/of-server/info/"
 ```
-<img width="1012" alt="from ubuntu" src="https://user-images.githubusercontent.com/70706464/161530073-7197ca55-b396-491c-a8aa-02768ea1a0c5.png">
+Пример вывода:
+<img width="1013" alt="Снимок экрана 2022-04-04 в 16 14 53" src="https://user-images.githubusercontent.com/70706464/161556027-ac867ac1-005c-402f-94b8-1d76fe1dedf5.png">
