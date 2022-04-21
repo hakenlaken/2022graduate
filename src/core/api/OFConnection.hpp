@@ -72,6 +72,8 @@ public:
     virtual uint64_t get_pkt_out_packets() const = 0;
     virtual uint64_t get_flow_mod_packets() const = 0;
     virtual uint64_t get_flow_removed_packets() const = 0;
+    virtual uint64_t get_echo_request_packets() const = 0;
+    virtual uint64_t get_echo_reply_packets() const = 0;
     virtual void packet_in_counter() = 0;
     virtual void packet_out_counter() = 0;
 

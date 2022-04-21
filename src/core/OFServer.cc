@@ -153,6 +153,8 @@ public:
         , pkt_in_of_packets_(0)
         , pkt_out_of_packets_(0)
         , flow_mod_packets_(0)
+        , echo_request_packets_(0)
+        , echo_reply_packets_(0)
         , flow_removed_packets_(0)
     { }
 
@@ -204,6 +206,8 @@ public:
         pkt_in_of_packets_ = 0;
         pkt_out_of_packets_ = 0;
         flow_mod_packets_ = 0;
+        echo_request_packets_ = 0;
+        echo_reply_packets_ = 0;
         flow_removed_packets_ = 0;
     }
 
@@ -235,6 +239,16 @@ public:
     uint64_t get_flow_mod_packets() const override
     {
         return flow_mod_packets_;
+    }
+
+    uint64_t get_echo_request_packets() const override
+    {
+        return echo_request_packets_;
+    }
+
+    uint64_t get_echo_reply_packets() const override
+    {
+        return echo_reply_packets_;
     }
 
     uint64_t get_flow_removed_packets() const override
@@ -280,6 +294,12 @@ public:
         if (msg.type() == of13::OFPT_FLOW_REMOVED) {
             flow_removed_packets_++;
         }
+        if (msg.type() == of13::OFPT_ECHO_REQUEST) {
+            echo_request_packets_++;
+        }
+        if (msg.type() == of13::OFPT_ECHO_REPLY) {
+            echo_reply_packets_++;
+        }
 
         //std::thread([this,len = msg.length(), buf = std::move(buf)] {
         //LOG(ERROR)<<"-|- OFServer send("<<msg.length()<<")";
@@ -312,6 +332,8 @@ public:
             pkt_in_of_packets_ = 0;
             pkt_out_of_packets_ = 0;
             flow_mod_packets_ = 0;
+            echo_request_packets_ = 0;
+            echo_reply_packets_ = 0;
             flow_removed_packets_ = 0;
         }
     }
@@ -336,6 +358,8 @@ private:
     uint64_t pkt_in_of_packets_;
     uint64_t pkt_out_of_packets_;
     uint64_t flow_mod_packets_;
+    uint64_t echo_request_packets_;
+    uint64_t echo_reply_packets_;
     uint64_t flow_removed_packets_;
 
     BroadcastSignal< SendHookDispatch > send_hook_sig_;
@@ -503,6 +527,28 @@ uint64_t OFServer::get_flow_mod_openflow_packets() const
 
     for (const auto& conn : connections()) {
         ret += conn->get_flow_mod_packets();
+    }
+
+    return ret;
+}
+
+uint64_t OFServer::get_echo_request_openflow_packets() const
+{
+    uint64_t ret = 0;
+
+    for (const auto& conn : connections()) {
+        ret += conn->get_echo_request_packets();
+    }
+
+    return ret;
+}
+
+uint64_t OFServer::get_echo_reply_openflow_packets() const
+{
+    uint64_t ret = 0;
+
+    for (const auto& conn : connections()) {
+        ret += conn->get_echo_reply_packets();
     }
 
     return ret;

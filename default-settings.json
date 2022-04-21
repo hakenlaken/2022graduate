@@ -30,7 +30,7 @@
 
     "flow-entries-verifier": {
       "active": false,
-      "poll-interval": 60
+      "poll-interval": 60000
     },
 
     "dpid-checker": {

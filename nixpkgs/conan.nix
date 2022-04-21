@@ -52,14 +52,14 @@ let newPython = python3.override {
 };
 
 in newPython.pkgs.buildPythonApplication rec {
-  version = "1.43.1";
+  version = "1.40.0";
   pname = "conan";
 
   src = fetchFromGitHub {
     owner = "conan-io";
     repo = "conan";
     rev = version;
-    sha256 = "0jwi7smgy2d9m49igijqr2p4ncw5nksjbijj8fzjvf1lgxgnyjhr";
+    sha256 = "1sb4w4wahasrwxkag1g79f135601sca6iafv4r4836f2vi48ka2d";
   };
 
   propagatedBuildInputs = with newPython.pkgs; [
@@ -99,11 +99,7 @@ in newPython.pkgs.buildPythonApplication rec {
   # Not enabled right now due to time constraints/failing tests that I didn't have time to track down
   doCheck = false;
 
-<<<<<<< HEAD
-postPatch = ''
-=======
   postPatch = ''
->>>>>>> 20fcb5d0b63651f85a64fb9a67b5533ce2628c58
     substituteInPlace conans/requirements.txt --replace 'PyYAML>=3.11, <6.0' 'PyYAML>=3.11'
   '';
 
